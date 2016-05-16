@@ -3,10 +3,10 @@ require('db_connection.php');
 
 Class Bd_action {
 
-	function insertPost ($insert)
+	function insertPost ($insert, $dbtable)
 	{
 
-		$conn = connect(); // function from bd_connection returns $conn
+		$conn = connect($dbtable); // function from bd_connection returns $conn
 		$timestamp = $insert->timestamp;
 		$ip = $insert->ip;
 		$useragent = $insert->useragent;

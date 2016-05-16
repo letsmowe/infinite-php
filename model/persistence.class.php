@@ -1,5 +1,6 @@
 <?php
 Class Persistence {
+	public $app;
 	public $timestamp;
 	public $ip;
 	public $useragent;
@@ -43,6 +44,7 @@ Class Persistence {
 		 * get info about request (if any);
 		 * timestamp, ip and useragent are parsed from header request
 		*/
+		$this->app = $reqs['appId'];
 		$this->timestamp = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);
 		$this->ip = $_SERVER['REMOTE_ADDR'];
 		$this->useragent = $_SERVER['HTTP_USER_AGENT'];
@@ -54,10 +56,12 @@ Class Persistence {
 		/* Populate metadados array with info about form fields (VERTICAL) */
 		foreach ($reqs as $name => $value)
 		{
+			if ($name != "appId") {
 
-			$meta = new Meta($name,$value);
-			$metadados[] = $meta;
-
+				$meta = new Meta($name, $value);
+				$metadados[] = $meta;
+				
+			}
 		}
 
 		/* Populate datafile array with info about files */

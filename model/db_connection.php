@@ -1,11 +1,10 @@
 <?php
 
-function connect() {
+function connect($dbname) {
 	// Create connection
 	$server = "localhost";
-	$user = "usuario-v";
+	$user = "usuario";
 	$pass = "abc123ABC!@#";
-	$dbname = "upload-api-v";
 
 	static $conn;
 

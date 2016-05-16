@@ -38,7 +38,8 @@ try {
 
 		/*
 		$action = new Bd_action();
-		$action->insertPost($insert);
+		$table = "upload-api-v";
+		$action->insertPost($insert, $table);
 		*/
 		
 		echo $insert->toJSON();

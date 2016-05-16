@@ -17,15 +17,13 @@
 <body>
 <h2>Cadastro de informações</h2>
 
-<form id="infinite-form" action="" data-server="http://localhost/infinite-php/">
-	<input type="text" name="firstname" class="FormField" placeholder="Insira o primeiro">
-	<input type="text" name="lastname" class="FormField" placeholder="Insira o segundo"><br>
-	<input type="text" name="age" class="FormField" placeholder="Insira a idade"/><br>
+<form id="infinite-form" action="" data-server="http://localhost/infinite-php/" data-app="BwX0d5GaDhf">
+	<p>Informe os dados do app</p>
 
-	<p>Selecione:</p>
-	<label><input type="radio" name="gender" class="FormField" value="m" /> male</label>
-	<label><input type="radio" name="gender" class="FormField" value="f" /> female</label><br>
-	<input type="file" name="file" class="FormField" placeholder="Insira os arquivos" multiple="multiple"/><br>
+	<input type="text" name="name" class="FormField" placeholder="Insira o nome do app">
+
+	<br><p>Regras futuramente</p><br>
+
 </form>
 
 <button id="btn">Call API!</button>
@@ -35,51 +33,36 @@
 
 	var btn = document.getElementById('btn');
 
-	btn.addEventListener('click', function (ev) {
+	btn.addEventListener('click', function () {
 
 		var form = document.getElementById('infinite-form');
 		var fields;
 
 		// POST request through ajax (without jquery)
 		var formData = new FormData();
+		fields = form.querySelectorAll('.FormField');
 
 		// Set form data
 		for (var i = 0; i < form.length; i++) {
-			fields = form.querySelectorAll(".FormField");
-
-			if (fields[i].name == "gender") {
-
-				var genderValue = form.querySelector("input[name='gender']:checked").value;
-				formData.append(fields[i].name, genderValue);
-
-			} else if (fields[i].name == "file") {
-
-				if (fields[i].files.length) {
-
-					var filesValue = fields[i].files;
-
-					for (var j = 0; j < fields[i].files.length; j++) {
-						formData.append("file[" + j + "]", filesValue[j]);
-					}
-				}
-			} else {
-				formData.append(fields[i].name, fields[i].value);
-			}
+			formData.append(fields[i].name, fields[i].value);
 		}
 
+		var appId = form.dataset.app;
+		formData.append('appId', appId);
+
 		var ajaxReq = new XMLHttpRequest();
-		//ajaxReq.open("POST", form.dataSet.server); // no Element form, o dataSet lista os atributos com tag data-
-		ajaxReq.open("POST", "http://localhost/infinite-php/");
+		var apiServer = form.dataset.server;
+		ajaxReq.open('POST', apiServer);
 		ajaxReq.send(formData);
 		ajaxReq.onload = function () {
 			if (ajaxReq.status >= 200 && ajaxReq.status < 400) {
 				try {
 					console.log(ajaxReq.responseText);
 				} catch (ex) {
-					console.log("Error parse: " + ex);
+					console.log('Error parse: ' + ex);
 				}
 			} else {
-				console.log("erro");
+				console.log('erro');
 			}
 		};
 	});
