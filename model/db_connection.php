@@ -9,11 +9,12 @@ function connect($dbname) {
 	static $conn;
 
 	if ($conn === NULL)
+		//$conn = new mysqli($server, $user, $pass, $dbname);
 		$conn = mysqli_connect($server, $user, $pass, $dbname);
 
 	// Check connection
 	if (!$conn) {
-		die("Falha na conexão: " . mysqli_connect_error() . "<br>");
+		die("Falha na conexão: " . $conn->connect_error . "<br>");
 	}
 
 	// Change charset to utf8

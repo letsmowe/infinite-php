@@ -37,9 +37,9 @@ try {
 		$insert = new Persistence($_POST);
 
 		/*
-		$action = new Bd_action();
-		$table = "upload-api-v";
-		$action->insertPost($insert, $table);
+		$action = new Db_action();
+		$db = "upload-api-v";
+		$action->insertPost($insert, $db);
 		*/
 		
 		echo $insert->toJSON();

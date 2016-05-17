@@ -1,6 +1,7 @@
 <?php
 Class Persistence {
 	public $app;
+	public $_id;
 	public $timestamp;
 	public $ip;
 	public $useragent;
@@ -19,7 +20,8 @@ Class Persistence {
 
 		if (count($_POST)) {
 
-			$this->handlePost($reqs);
+			$this->handleApp($reqs);
+			//$this->handlePost($reqs);
 
 		} else {
 
@@ -30,12 +32,41 @@ Class Persistence {
 	}
 
 	/**
+	 * connect app to its meta fields (rules)
+	 *
+	 * Handle $_POST info to get app id that was set on form and...
+	 *
+	 * @param array $reqs $_POST information
+	*/
+	public function handleApp($reqs) {
+		//check if id is already used, if it is, handle its rules to fields post
+		//if id not used, create id with its info
+		
+		$appId = $reqs['appId'];
+
+		//$this->app = $reqs['appId'];
+		
+		//check if app id is already used, if not, create id for app
+		$action = new Db_action();
+		$db = "infinite-php";
+
+		if($action->verifyId($appId, $db, "apps") === TRUE) { //true == used, set rules for post meta
+			//app rules from id
+			echo "entra aqui\n";
+			$this->app = $action->selectApp($appId,$db);
+		} else {
+			echo "não tem essa chave";
+			//$action->insertApp($reqs, $db);
+		}
+	}
+
+	/**
 	 * set info about post metadata and file data
 	 *
 	 * Handle $_POST info to get metadata (form fields values)
 	 *  and $_FILES info to get information about the file(s)
 	 *
-	 * @param array $reqs $_POST informations
+	 * @param array $reqs $_POST information
 	 */
 	public function handlePost($reqs)
 	{
@@ -44,7 +75,6 @@ Class Persistence {
 		 * get info about request (if any);
 		 * timestamp, ip and useragent are parsed from header request
 		*/
-		$this->app = $reqs['appId'];
 		$this->timestamp = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);
 		$this->ip = $_SERVER['REMOTE_ADDR'];
 		$this->useragent = $_SERVER['HTTP_USER_AGENT'];
@@ -57,25 +87,53 @@ Class Persistence {
 		foreach ($reqs as $name => $value)
 		{
 			if ($name != "appId") {
-
-				$meta = new Meta($name, $value);
-				$metadados[] = $meta;
-				
+				$metadados[] = new Meta($name, $value);
 			}
 		}
+
+		$this->post_meta = $metadados;
 
 		/* Populate datafile array with info about files */
 		$i = 0;
 		while ($_FILES['file']['name'][$i] != null) {
 
-			$file = new File($_FILES, $i); //['file']['name'][$i] (appends fields to an array, not to [file])
-			$datafile[] = $file;
+			$datafile[] = new File($_FILES, $i); //['file']['name'][$i] (appends fields to an array, not to [file])
 			$i++;
 
 		}
 
-		$this->post_meta = $metadados;
-		$this->post_files = $datafile;
+		if(count($datafile)) {
+			$this->post_files = $datafile;
+		} else {
+			$this->post_files = NULL;
+		}
+
+		//check if id is already used, if not, set generated id to post
+		$action = new Db_action();
+		$db = "infinite-php";
+		$post_id = $this->generateSafeString(11);
+
+		while($action->verifyId($post_id, $db, "posts")) { //true = used, generate another
+			$post_id = $this->generateSafeString(11);
+		}
+
+		$this->_id = $post_id;
+
+	}
+
+	public function generateSafeString($sizeid)
+	{
+
+		$chars = "ABCDEFGHJKLMPQRSTUVWXYZ";
+		$chars .= "abcdefghkmnpqrstuvwxyz";
+		$chars .= "0123456789";
+
+		$id = array();
+
+		for ($i = 0; $i < $sizeid; $i++)
+			$id[$i] = $chars[mt_rand(0 , strlen($chars) - 1)];
+
+		return implode("",$id);
 
 	}
 

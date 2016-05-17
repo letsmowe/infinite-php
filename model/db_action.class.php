@@ -1,12 +1,12 @@
 <?php
 require('db_connection.php');
 
-Class Bd_action {
+Class Db_action {
 
-	function insertPost ($insert, $dbtable)
+	function insertPost ($insert, $dbname)
 	{
 
-		$conn = connect($dbtable); // function from bd_connection returns $conn
+		$conn = connect($dbname); // function from bd_connection returns $conn
 		$timestamp = $insert->timestamp;
 		$ip = $insert->ip;
 		$useragent = $insert->useragent;
@@ -17,7 +17,8 @@ Class Bd_action {
 
 		if ($conn->query($sql) === TRUE) {
 			$post_id = $conn->insert_id; // get the insert id from $conn (id post)
-			
+
+			//override sql because INSERT (command on $sql) was already executed
 			$sql = $this->prepareMeta($meta_info, $post_id);
 			$sql .= $this->prepareFile($files_info, $post_id);
 
@@ -32,6 +33,74 @@ Class Bd_action {
 		
 		$conn->close();
 	
+	}
+	
+	function insertApp ($dados, $dbname) {
+		$conn = connect($dbname);
+
+		$sql = "INSERT INTO apps (_id, name) VALUES ('" . $dados['appId'] . "','" . $dados['name'] . "')";
+
+		if ($conn->query($sql) !== TRUE) {
+			echo "Erro: " . $conn->error;
+		}
+
+		$conn->close();
+	}
+
+	/**
+	 * @param string $id id string
+	 * @param string $dbname database name
+	 * 
+	 * @return array $dados if able to select, set $dados array, else return NULL
+	*/
+	function selectApp ($id, $dbname) {
+		$dados = array();
+		
+		$conn = connect($dbname);
+
+		$sql = "SELECT _id, name FROM apps WHERE _id='$id'";
+
+		$rest = $conn->query($sql);
+		var_dump($conn);
+
+		if($rest->num_rows > 0) {
+			echo "a chave existe\n";
+			while ($row = $rest->fetch_array(MYSQLI_BOTH)) {
+				$dados[$row["_id"]] = $row["name"];
+			}
+		} else {
+			$dados = NULL;
+		}
+
+		return $dados;
+
+	}
+
+	function verifyId ($id, $dbname, $table) {
+		$conn = connect($dbname);
+
+		switch ($table) {
+			case "apps" :
+				$sql = "SELECT _id FROM apps WHERE _id='$id'";
+				break;
+			case "posts" :
+				$sql = "SELECT _id FROM posts WHERE _id='$id'";
+				break;
+		}
+
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) {
+			var_dump($result);
+			$result->free_result();
+			$conn->close();
+			return true; //used
+		} else {
+			$result->free_result();
+			$conn->close();
+			return false;
+		}
+
 	}
 
 	function prepareMeta ($meta_info, $post_id)
