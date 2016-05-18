@@ -3,8 +3,7 @@
 include 'model/meta.class.php';
 include 'model/file.class.php';
 include 'model/persistence.class.php';
-
-include 'model/db_action.class.php';
+require_once ('var/connection.php');
 
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
@@ -34,13 +33,11 @@ try {
 
 	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-		$insert = new Persistence($_POST);
+		$c = new Connection();
 
-		/*
-		$action = new Db_action();
-		$db = "upload-api-v";
-		$action->insertPost($insert, $db);
-		*/
+		$insert = new Persistence($_POST, $c);
+		$action = new Action();
+		$action->insertPost($insert,$c->getConnection());
 		
 		echo $insert->toJSON();
 

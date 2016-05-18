@@ -1,7 +1,10 @@
 <?php
+
+include 'action.class.php';
+
 Class Persistence {
 	public $app;
-	public $_id;
+	public $post_id;
 	public $timestamp;
 	public $ip;
 	public $useragent;
@@ -14,14 +17,16 @@ Class Persistence {
 	 * Called to manipulate and store infos and files upload from form
 	 *
 	 * @param array $reqs $_POST info
+	 * @param object $c
 	 */
-	public function __construct($reqs)
+	public function __construct($reqs, $c)
 	{
 
 		if (count($_POST)) {
 
-			$this->handleApp($reqs);
-			//$this->handlePost($reqs);
+			$conn = $c->getConnection();
+
+			$this->handleApp($reqs, $conn);
 
 		} else {
 
@@ -37,38 +42,54 @@ Class Persistence {
 	 * Handle $_POST info to get app id that was set on form and...
 	 *
 	 * @param array $reqs $_POST information
+	 * @param mysqli $conn (already a connection, not the object reference)
 	*/
-	public function handleApp($reqs) {
+	public function handleApp($reqs, $conn) {
 		//check if id is already used, if it is, handle its rules to fields post
 		//if id not used, create id with its info
 		
 		$appId = $reqs['appId'];
 
-		//$this->app = $reqs['appId'];
-		
 		//check if app id is already used, if not, create id for app
-		$action = new Db_action();
-		$db = "infinite-php";
+		$action = new Action();
 
-		if($action->verifyId($appId, $db, "apps") === TRUE) { //true == used, set rules for post meta
-			//app rules from id
-			echo "entra aqui\n";
-			$this->app = $action->selectApp($appId,$db);
+		if($action->verifyId($appId, "apps", $conn)) { //true == used, set rules for post meta
+			$this->app = $action->selectApp($appId, $conn);
+
+			//set meta fields rules for selected app
+			//$rules = $action->selectRules($appId, $conn);
+			//array with fields rules
+
+			//Example (would get rules from a record on rules tables based on app id)
+			//Insert new app (create a new app through an app)
+			$rules["appId"] = $this->generateSafeString(11);
+			while ($action->verifyId($rules["appId"], "apps", $conn)) {
+				$rules["appId"] = $this->generateSafeString(11);
+			}
+
+			$rules["name"] = $reqs["name_app"];
+
+			if ($this->app["name"] == "app")
+				$action->insertApp($rules, $conn);
+
+			$this->handlePost($reqs, $conn);
+
 		} else {
-			echo "não tem essa chave";
-			//$action->insertApp($reqs, $db);
+			echo ("App inválida");
 		}
 	}
 
 	/**
-	 * set info about post metadata and file data
+	 * set info about post metadata and file metadata
 	 *
 	 * Handle $_POST info to get metadata (form fields values)
 	 *  and $_FILES info to get information about the file(s)
 	 *
 	 * @param array $reqs $_POST information
+	 *
+	 * @param mysqli $conn
 	 */
-	public function handlePost($reqs)
+	public function handlePost($reqs, $conn)
 	{
 
 		/*
@@ -109,15 +130,14 @@ Class Persistence {
 		}
 
 		//check if id is already used, if not, set generated id to post
-		$action = new Db_action();
-		$db = "infinite-php";
+		$action = new Action();
 		$post_id = $this->generateSafeString(11);
 
-		while($action->verifyId($post_id, $db, "posts")) { //true = used, generate another
+		while($action->verifyId($post_id, "posts", $conn)) { //true = used, generate another
 			$post_id = $this->generateSafeString(11);
 		}
 
-		$this->_id = $post_id;
+		$this->post_id = $post_id;
 
 	}
 

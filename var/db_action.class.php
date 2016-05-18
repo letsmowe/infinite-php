@@ -1,12 +1,11 @@
 <?php
-require('db_connection.php');
+require('connection.php');
 
 Class Db_action {
 
-	function insertPost ($insert, $dbname)
+	function insertPost ($insert, $conn)
 	{
 
-		$conn = connect($dbname); // function from bd_connection returns $conn
 		$timestamp = $insert->timestamp;
 		$ip = $insert->ip;
 		$useragent = $insert->useragent;
