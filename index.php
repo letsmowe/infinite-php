@@ -1,8 +1,8 @@
 <?php
 
-include 'model/meta.class.php';
-include 'model/file.class.php';
-include 'model/persistence.class.php';
+include 'model/Meta.class.php';
+include 'model/File.class.php';
+include 'model/Persistence.class.php';
 require_once ('var/connection.php');
 
 header('Content-Type: application/json');
@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 	exit(0);
 }
 
-
 try {
 
 	if ($_GET['callback']) {
@@ -33,17 +32,25 @@ try {
 
 	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-		$c = new Connection();
+		//if json_decode receive true parameter, it creates an associative array
+		$reqs = json_decode($_POST['app'], true);
+		var_dump($reqs);
 
+		$dados = json_encode($reqs);
+
+		echo $dados;
+		
+		/*
+		$c = new Connection();
 		$insert = new Persistence($_POST, $c);
 		$action = new Action();
 		$action->insertPost($insert,$c->getConnection());
-		
 		echo $insert->toJSON();
+		*/
 
 	} else {
 
-		// to return information
+		// this else may be == GET
 
 	}
 

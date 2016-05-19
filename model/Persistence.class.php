@@ -1,6 +1,6 @@
 <?php
 
-include 'action.class.php';
+include 'Action.class.php';
 
 Class Persistence {
 	public $app;
@@ -8,8 +8,8 @@ Class Persistence {
 	public $timestamp;
 	public $ip;
 	public $useragent;
-	public $post_meta; // array with request metadata
-	public $post_files; // array with (may be more than one) file
+	public $postMeta; // array with request metadata
+	public $postFiles; // array with (may be more than one) file
 
 	/**
 	 * Persistence constructor
@@ -112,11 +112,11 @@ Class Persistence {
 			}
 		}
 
-		$this->post_meta = $metadados;
+		$this->postMeta = $metadados;
 
 		/* Populate datafile array with info about files */
 		$i = 0;
-		while ($_FILES['file']['name'][$i] != null) {
+		while ($_FILES['file']['name'][$i] != NULL) {
 
 			$datafile[] = new File($_FILES, $i); //['file']['name'][$i] (appends fields to an array, not to [file])
 			$i++;
@@ -124,9 +124,9 @@ Class Persistence {
 		}
 
 		if(count($datafile)) {
-			$this->post_files = $datafile;
+			$this->postFiles = $datafile;
 		} else {
-			$this->post_files = NULL;
+			$this->postFiles = NULL;
 		}
 
 		//check if id is already used, if not, set generated id to post

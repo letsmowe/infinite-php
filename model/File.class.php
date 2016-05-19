@@ -1,7 +1,7 @@
 <?php
 class File {
 	public $name; // only the file name on server
-	public $temp_path; // temp file path on temp folder
+	public $tempPath; // temp file path on temp folder
 	public $path;
 	public $size;
 	public $origin; // name + extension on client machine
@@ -45,7 +45,7 @@ class File {
 	{
 
 		/** tmp_name, size, name and type are parsed from $_FILE object */
-		$this->temp_path = $reqs['file']['tmp_name'][$i]; // temp filename on server
+		$this->tempPath = $reqs['file']['tmp_name'][$i]; // temp filename on server
 		$this->size = $reqs['file']['size'][$i]; // file size in bytes
 		$this->origin = $reqs['file']['name'][$i]; // original name on client machine
 		$this->type = $reqs['file']['type'][$i]; // mime type of the file (ex. "image/jpeg")
@@ -63,7 +63,7 @@ class File {
 			 * if success, set other infos as path of the uploaded file
 			 * on the static folder and its new created name
 			 */
-			if (move_uploaded_file($this->temp_path, $updir . $upname . "." . $upext)) {
+			if (move_uploaded_file($this->tempPath, $updir . $upname . "." . $upext)) {
 				$this->name = $upname;
 				$this->path = $updir . $upname . "." . $upext;
 			}

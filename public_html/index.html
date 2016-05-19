@@ -17,6 +17,7 @@
 <body>
 <h2>Cadastro de informações</h2>
 
+<!--
 <form id="infinite-form" action="" data-server="http://localhost/infinite-php/" data-app="BwX0d5GaDhf">
 	<p>Informe os dados do app</p>
 
@@ -24,36 +25,51 @@
 
 	<br><p>Regras futuramente</p><br>
 
+
 </form>
+-->
 
 <button id="btn">Call API!</button>
+
 </body>
 
 <script>
 
 	var btn = document.getElementById('btn');
 
+	var app = {
+		name: 'currículo',
+		rules: {
+			restricted: "true",
+			meta: {
+				rules: [
+					{
+						name: 'name',
+						contentType: 'string'
+					},
+					{
+						name: 'age',
+						contentType: 'number'
+					}
+				]
+			},
+			files: {
+				rules: [
+					{}
+				]
+			}
+		}
+	};
+
+	var appString = JSON.stringify(app);
+	console.log(appString);
+
 	btn.addEventListener('click', function () {
 
-		var form = document.getElementById('infinite-form');
-		var fields;
-
-		// POST request through ajax (without jquery)
-		var formData = new FormData();
-		fields = form.querySelectorAll('.FormField');
-
-		// Set form data
-		for (var i = 0; i < form.length; i++) {
-			formData.append(fields[i].name, fields[i].value);
-		}
-
-		var appId = form.dataset.app;
-		formData.append('appId', appId);
-
 		var ajaxReq = new XMLHttpRequest();
-		var apiServer = form.dataset.server;
-		ajaxReq.open('POST', apiServer);
-		ajaxReq.send(formData);
+		ajaxReq.open('POST', 'http://localhost/infinite-php/');
+		ajaxReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		ajaxReq.send('app=' + appString);
 		ajaxReq.onload = function () {
 			if (ajaxReq.status >= 200 && ajaxReq.status < 400) {
 				try {
@@ -62,7 +78,7 @@
 					console.log('Error parse: ' + ex);
 				}
 			} else {
-				console.log('erro');
+				console.log('Request Error');
 			}
 		};
 	});

@@ -14,8 +14,8 @@ Class Action
 		$timestamp = $insert->timestamp;
 		$ip = $insert->ip;
 		$useragent = $insert->useragent;
-		$meta_info = $insert->post_meta;
-		$files_info = $insert->post_files;
+		$meta_info = $insert->postMeta;
+		$files_info = $insert->postFiles;
 
 		$sql = "INSERT INTO posts (_id, apps_id, timestamp, ip, useragent) VALUES ('$id','$app_id','$timestamp','$ip','$useragent')";
 
@@ -162,7 +162,7 @@ Class Action
 
 		foreach ($files_info as $key => $file) {
 
-			$insert = "INSERT INTO files (posts_id, name, temp_path, path, size, origin, extension, type, width, height) VALUES ($post_id";
+			$insert = "INSERT INTO files (posts_id, name, path, size, extension, type, width, height) VALUES ($post_id";
 
 			$values = "";
 			foreach ($file as $attr => $value) {

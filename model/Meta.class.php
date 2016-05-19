@@ -1,7 +1,7 @@
 <?php
 Class Meta {
-	public $meta_name;
-	public $meta_value;
+	public $metaName;
+	public $metaValue;
 
 	/**
 	 * Receive fields name and value about post "metadata" (form fields)
@@ -10,8 +10,8 @@ Class Meta {
 	 */
 	public function __construct($name, $value)
 	{
-		$this->meta_name = $name;
-		$this->meta_value = $value;
+		$this->metaName = $name;
+		$this->metaValue = $value;
 	}
 
 	/**
