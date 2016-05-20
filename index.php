@@ -1,7 +1,5 @@
 <?php
 
-include 'model/Meta.class.php';
-include 'model/File.class.php';
 include 'model/Persistence.class.php';
 require_once ('var/connection.php');
 
@@ -31,22 +29,13 @@ try {
 		echo $_GET['callback'] . '(' . json_encode($_GET) . ')'; //jsonp only get requests
 
 	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+		//if json_decode get true parameter, it creates an associative array
+		$dados = json_decode($_POST['app'], true);
 
-		//if json_decode receive true parameter, it creates an associative array
-		$reqs = json_decode($_POST['app'], true);
-		var_dump($reqs);
-
-		$dados = json_encode($reqs);
-
-		echo $dados;
-		
-		/*
 		$c = new Connection();
-		$insert = new Persistence($_POST, $c);
-		$action = new Action();
-		$action->insertPost($insert,$c->getConnection());
-		echo $insert->toJSON();
-		*/
+		$manipulation = new Persistence($dados, $c);
+
+		echo $manipulation->toJSON();
 
 	} else {
 

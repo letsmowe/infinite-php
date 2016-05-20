@@ -116,12 +116,4 @@ class File {
 		return implode("",$id);
 
 	}
-
-	/**
-	 * @return string
-	 */
-	public function toJSON()
-	{
-		return json_encode($this);
-	}
 }

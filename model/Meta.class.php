@@ -1,5 +1,6 @@
 <?php
 Class Meta {
+	
 	public $metaName;
 	public $metaValue;
 
