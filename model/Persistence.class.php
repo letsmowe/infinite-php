@@ -2,10 +2,13 @@
 
 include 'Action.class.php';
 include 'App.class.php';
+include 'Post.class.php';
+include 'Meta.class.php';
+include 'File.class.php';
 
 Class Persistence {
+	public $post;
 	public $app;
-	//public $post;
 
 	/**
 	 * Persistence constructor
@@ -22,6 +25,7 @@ Class Persistence {
 
 			$conn = $c->getConnection();
 			$this->handleApp($dados, $conn);
+			$this->handlePost($dados, $conn);
 
 		} else {
 
@@ -29,6 +33,73 @@ Class Persistence {
 
 		}
 
+	}
+
+	/**
+	 * set info about post metadata and file metadata (if there is one)
+	 *
+	 * Handle $_POST info to get metadata (form fields values)
+	 *  and $_FILES info to get information about the file(s)
+	 *
+	 * @param array $reqs $_POST information (when not form, json parsed array
+	 * @param mysqli $conn
+	 */
+	public function handlePost($reqs, $conn)
+	{
+
+		/*
+		 * get info about request (if any);
+		 * timestamp, ip and useragent are parsed from header request
+		*/
+
+		$timestamp = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);
+		$ip = $_SERVER['REMOTE_ADDR'];
+		$useragent = $_SERVER['HTTP_USER_AGENT'];
+
+		// Create an array for metadata fields and files data
+		$metadados = array();
+		$datafile = array();
+
+		if ($reqs['appId']) {
+			// Populate metadados array with info about form fields (VERTICAL)
+			foreach ($reqs as $name => $value) {
+				if ($name != "appId") {
+					$metadados[] = new Meta($name, $value);
+				}
+			}
+
+			// Populate datafile array with info about files
+			$i = 0;
+			while ($_FILES['file']['name'][$i] != NULL) {
+
+				$datafile[] = new File($_FILES, $i); //['file']['name'][$i] (appends fields to an array, not to [file])
+				$i++;
+
+			}
+		}
+
+		//check if id is already used, if not, set generated id to post
+		$action = new Action();
+		$post_id = $this->generateSafeString(11);
+
+		while($action->verifyId($post_id, "posts", $conn)) { //true = used, generate another
+			$post_id = $this->generateSafeString(11);
+		}
+
+		if(count($metadados)) {
+			$postMeta = $metadados;
+		} else {
+			$postMeta = NULL;
+		}
+
+		if(count($datafile)) {
+			$postFiles = $datafile;
+		} else {
+			$postFiles = NULL;
+		}
+
+		$post = new Post($post_id, $timestamp, $ip, $useragent, $postMeta, $postFiles);
+		$this->post = $post;
 	}
 
 	/**

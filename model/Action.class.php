@@ -3,7 +3,7 @@
 Class Action
 {
 	/**
-	 * @param Persistence $insert
+	 * @param array $insert
 	 * @param mysqli $conn
 	*/
 	public function insertPost ($insert, $conn)
@@ -82,6 +82,14 @@ Class Action
 		}
 
 		return $dados;
+	}
+
+	public function insertRules() {
+		
+	}
+	
+	public function selectRules() {
+		
 	}
 
 	/**
