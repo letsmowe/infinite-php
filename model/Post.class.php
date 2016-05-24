@@ -1,5 +1,6 @@
 <?php
 
+
 Class Post {
 
 	public $post_id;
@@ -20,10 +21,33 @@ Class Post {
 	}
 
 	/**
-	 * @return string
+	 * @param string $appId generated id for app
+	 * @param mysqli $conn
 	 */
-	public function toJSON()
+	public function insert ($appId, $conn)
 	{
-		return json_encode($this);
+		$post_id = $this->post_id;
+		$app_id = $appId;
+		$timestamp = $this->timestamp;
+		$ip = $this->ip;
+		$useragent = $this->useragent;
+
+		$sql = "INSERT INTO posts (_id, app_id, timestamp, ip, useragent) VALUES ('$post_id','$app_id','$timestamp','$ip','$useragent')";
+
+		if ($conn->query($sql) !== TRUE) {
+			echo "Erro: " . $conn->error;
+		}
+
+		/*
+		//override $sql because INSERT (command on $sql) was already executed
+		$sql = $this->prepareMeta($meta_info, $post_id);
+		$sql .= $this->prepareFile($files_info, $post_id);
+
+		if ($conn->multi_query($sql) !== TRUE) {
+			//git gud
+			echo "Erro: " . $conn->error;
+		}
+		*/
+
 	}
 }

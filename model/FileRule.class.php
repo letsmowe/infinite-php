@@ -1,6 +1,8 @@
 <?php
 
-Class FileRule {
+include 'Action.php';
+
+class FileRule extends Action {
 
 	public $name;
 	public $contentType;

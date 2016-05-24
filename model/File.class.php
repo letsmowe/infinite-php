@@ -1,5 +1,6 @@
 <?php
-class File {
+
+Class File {
 	public $name; // only the file name on server
 	public $tempPath; // temp file path on temp folder
 	public $path;
@@ -11,7 +12,7 @@ class File {
 	public $height;
 
 	/**
-	 * File constructor
+	 * File "constructor"
 	 *
 	 * Receive a request as param from Persistence.handlePost
 	 * and verify if the request is a file array (or contain elements
@@ -19,18 +20,19 @@ class File {
 	 *
 	 * @param array $reqs $_FILES object array
 	 * @param int $numfile number of the file
+	 *
+	 * @return File $this return file object
 	 */
-	public function __construct($reqs, $numfile)
+	public function setFile($reqs, $numfile)
 	{
 
 		if(count($reqs['file'])) { // same as $_FILES['file']
 
 			$this->handleFile($reqs, $numfile); // or $reqs['file'] as param, but suppressed for later clarity
+			return $this;
 
 		} else {
-
 			// function to return information
-
 		}
 
 	}
@@ -90,6 +92,39 @@ class File {
 			echo $er_type->getMessage();
 		}
 
+	}
+
+	/**
+	 * run through $file_info array (a created array with metadata from
+	 * uploaded file), and prepare its keys and values as a sql query
+	 *
+	 * @param array $files_info FILE metadata
+	 * @param string $app_id generated id for app
+	 * @param string $post_id generated id for post
+	 * @param mysqli $conn database connection
+	 */
+	public function insert ($files_info, $app_id, $post_id, $conn) {
+
+		$sql = "";
+
+		foreach ($files_info as $key => $file) {
+
+			$insert = "INSERT INTO files (app_id, posts_id, name, path, size, extension, type, width, height) VALUES ('$app_id','$post_id'";
+
+			$values = "";
+			foreach ($file as $attr => $value) {
+				($attr == "size" || $attr == "width" || $attr == "height") ? $values .= ", $value" : $values .= ", '$value'";
+			}
+
+			$final = ");";
+
+			$sql .= $insert . $values . $final;
+
+		}
+
+		if ($conn->multi_query($sql) !== TRUE) {
+			echo "Erro: " . $conn->error;
+		}
 	}
 
 	/**

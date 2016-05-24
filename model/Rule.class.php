@@ -1,9 +1,10 @@
 <?php
 
-include "MetaRule.class.php";
-include "FileRule.class.php";
+include 'Action.php';
+include 'MetaRule.class.php';
+include 'FileRule.class.php';
 
-Class Rule {
+Class Rule extends Action {
 
 	public $restricted;
 	public $metaRule;

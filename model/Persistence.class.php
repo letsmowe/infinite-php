@@ -1,6 +1,5 @@
 <?php
 
-include 'Action.class.php';
 include 'App.class.php';
 include 'Post.class.php';
 include 'Meta.class.php';
@@ -16,23 +15,44 @@ Class Persistence {
 	 * Called to manipulate and store apps definitions and rules
 	 *
 	 * @param array $dados decoded json
-	 * @param object $c db connection already set, but need to get through function
+	 * @param mysqli $conn db connection already set, connection is set on Action
 	 */
-	public function __construct($dados, $c)
+	public function __construct($dados, $conn)
 	{
-
 		if (!empty($dados)) {
 
-			$conn = $c->getConnection();
 			$this->handleApp($dados, $conn);
 			$this->handlePost($dados, $conn);
 
 		} else {
-
 			// function to return information
-
 		}
 
+	}
+
+	/**
+	 * define app and its rules for meta fields and files
+	 *
+	 * Handle json decoded array to get info
+	 *
+	 * @param array $dados json decoded array
+	 * @param mysqli $conn (already a connection, not the object reference)
+	 */
+	public function handleApp($dados, $conn) {
+
+		//create id for app
+		//check if id is already used
+		//if id not used, set the rules
+
+		$appId = $this->generateSafeString(11);
+
+		while ($this->verifyId($appId, "apps", $conn)) { //true == used, generate new id
+			$appId = $this->generateSafeString(11);
+		}
+
+		$app = new App($appId, $dados["name"], $dados["rules"]);
+		$this->app = $app;
+		$app->insert($conn);
 	}
 
 	/**
@@ -57,37 +77,42 @@ Class Persistence {
 		$useragent = $_SERVER['HTTP_USER_AGENT'];
 
 		// Create an array for metadata fields and files data
-		$metadados = array();
+		$datameta = array();
 		$datafile = array();
 
+		$meta = new Meta();
+		$file = new File();
+
 		if ($reqs['appId']) {
+
 			// Populate metadados array with info about form fields (VERTICAL)
 			foreach ($reqs as $name => $value) {
+
 				if ($name != "appId") {
-					$metadados[] = new Meta($name, $value);
+					array_push($datameta, $meta->setMeta($name, $value));
 				}
+
 			}
 
 			// Populate datafile array with info about files
 			$i = 0;
 			while ($_FILES['file']['name'][$i] != NULL) {
 
-				$datafile[] = new File($_FILES, $i); //['file']['name'][$i] (appends fields to an array, not to [file])
+				array_push($datafile, $file->setFile($_FILES, $i)); //['file']['name'][$i] (appends fields to an array, not to [file])
 				$i++;
 
 			}
 		}
 
 		//check if id is already used, if not, set generated id to post
-		$action = new Action();
 		$post_id = $this->generateSafeString(11);
 
-		while($action->verifyId($post_id, "posts", $conn)) { //true = used, generate another
+		while($this->verifyId($post_id, "posts", $conn)) { //true = used, generate another
 			$post_id = $this->generateSafeString(11);
 		}
 
-		if(count($metadados)) {
-			$postMeta = $metadados;
+		if(count($datameta)) {
+			$postMeta = $datameta;
 		} else {
 			$postMeta = NULL;
 		}
@@ -100,31 +125,10 @@ Class Persistence {
 
 		$post = new Post($post_id, $timestamp, $ip, $useragent, $postMeta, $postFiles);
 		$this->post = $post;
-	}
 
-	/**
-	 * define app and its rules for meta fields and files
-	 *
-	 * Handle json decoded array to get info
-	 *
-	 * @param array $dados json decoded array
-	 * @param mysqli $conn (already a connection, not the object reference)
-	*/
-	public function handleApp($dados, $conn) {
-
-		//create id for app
-		//check if id is already used
-		//if id not used, set the rules
-		
-		$action = new Action();
-
-		$appId = $this->generateSafeString(11);
-		while ($action->verifyId($appId, "apps", $conn)) { //true == used, generate new id
-			$appId = $this->generateSafeString(11);
-		}
-		
-		$app = new App($appId, $dados["name"], $dados["rules"]);
-		$this->app = $app;
+		$post->insert($this->app->_id, $conn);
+		$meta->insert($postMeta, $this->app->_id, $this->post->post_id, $conn);
+		$file->insert($postFiles, $this->app->_id, $this->post->post_id, $conn);
 	}
 
 	/**
@@ -153,10 +157,43 @@ Class Persistence {
 	}
 
 	/**
+	 * get string id and table name, and try to select on db
+	 *  if query parse any info (probably only one row - its unique anyway), then id is already used
+	 *  if query does not return any info, then id is available
+	 *
+	 * @param string $id id from target element
+	 * @param string $table table name from target element
+	 * @param mysqli $conn
+	 *
+	 * @return boolean
+	 */
+	public function verifyId ($id, $table, $conn) {
+
+		switch ($table) {
+			case "apps" :
+				$sql = "SELECT _id FROM apps WHERE _id='$id'";
+				break;
+			case "posts" :
+				$sql = "SELECT _id FROM posts WHERE _id='$id'";
+				break;
+		}
+
+		$result = $conn->query($sql);
+
+		if ($result->num_rows) {
+			return true; //used
+		} else {
+			return false;
+		}
+
+	}
+
+	/**
 	 * @return string
 	 */
 	public function toJSON()
 	{
 		return json_encode($this);
 	}
+
 }

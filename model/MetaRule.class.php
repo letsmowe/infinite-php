@@ -1,6 +1,8 @@
 <?php
 
-Class MetaRule {
+include 'Action.php';
+
+Class MetaRule extends Action {
 	
 	public $name;
 	public $contentType;

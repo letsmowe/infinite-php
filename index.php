@@ -31,9 +31,10 @@ try {
 	} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		//if json_decode get true parameter, it creates an associative array
 		$dados = json_decode($_POST['app'], true);
-
+		echo "enviou post";
+		
 		$c = new Connection();
-		$manipulation = new Persistence($dados, $c);
+		$manipulation = new Persistence($dados, $c->getConnection());
 
 		echo $manipulation->toJSON();
 

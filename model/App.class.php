@@ -1,6 +1,6 @@
 <?php
 
-include "Rule.class.php";
+include 'Rule.class.php';
 
 Class App {
 	
@@ -34,5 +34,21 @@ Class App {
 	public function setRules ($rules) {
 		$rules = new Rule($rules["restricted"], $rules["meta"], $rules["files"]);
 		$this->rule = $rules;
+	}
+
+	/**
+	 *
+	 *
+	 * @param mysqli $conn database connection
+	 */
+	public function insert ($conn) {
+		$id = $this->_id;
+		$name = $this->name;
+
+		$sql = "INSERT INTO app (_id, name) VALUES ('$id','$name')";
+
+		if ($conn->query($sql) !== TRUE) {
+			echo "Erro: " . $conn->error;
+		}
 	}
 }
