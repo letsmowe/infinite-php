@@ -1,8 +1,6 @@
 <?php
 
-include 'Action.php';
-
-Class MetaRule extends Action {
+class MetaRule {
 	
 	public $name;
 	public $contentType;
@@ -15,5 +13,4 @@ Class MetaRule extends Action {
 		$this->name = $rule['name'];
 		$this->contentType = $rule['contentType'];
 	}
-
 }

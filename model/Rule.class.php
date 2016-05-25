@@ -1,10 +1,9 @@
 <?php
 
-include 'Action.php';
 include 'MetaRule.class.php';
 include 'FileRule.class.php';
 
-Class Rule extends Action {
+class Rule {
 
 	public $restricted;
 	public $metaRule;
@@ -26,6 +25,57 @@ Class Rule extends Action {
 		$this->setFileRule($fileRule);
 	}
 
+	/**
+	 * @param int $lastRuleId rule from rule insert on db
+	 * @param mysqli $conn
+	*/
+	public function insertMetaRules($lastRuleId, $conn) {
+		$metaRules = $this->metaRule;
+
+		foreach ($metaRules as $obj => $rule) {
+			$sql = "";
+			$sqlattr = "";
+			$sqlinsert = "INSERT INTO meta_rules (rules_id" . $sqlattr;
+			$sqlvalue = ") VALUES ($lastRuleId";
+			$sqlvalues = "";
+			foreach ($rule as $attr => $value) {
+				$sqlattr .= ", $attr";
+				$sqlvalues .= ", '$value'";
+			}
+			$sqlfinal = ");";
+			$sql .= $sqlinsert . $sqlattr . $sqlvalue . $sqlvalues . $sqlfinal;
+
+			if ($conn->query($sql) !== TRUE) {
+				echo "Erro @ metaRuleInsert " . $conn->error;
+			}
+		}
+	}
+
+	/**
+	 * @param int $lastRuleId
+	 * @param mysqli $conn
+	 */
+	public function insertFileRules($lastRuleId, $conn) {
+		$fileRules = $this->fileRule;
+
+		foreach ($fileRules as $obj => $rule) {
+			$sql = "";
+			$sqlattr = "";
+			$sqlinsert = "INSERT INTO files_rules (rules_id" . $sqlattr;
+			$sqlvalue = ") VALUES ($lastRuleId";
+			$sqlvalues = "";
+			foreach ($rule as $attr => $value) {
+				$sqlattr .= ", $attr";
+				($attr == "maxSize") ? $sqlvalues .= ", $value" : $sqlvalues .= ", '$value'";
+			}
+			$sqlfinal = ");";
+			$sql .= $sqlinsert . $sqlattr . $sqlvalue . $sqlvalues . $sqlfinal;
+
+			if ($conn->query($sql) !== TRUE) {
+				echo "Erro @ metaRuleInsert " . $conn->error;
+			}
+		}
+	}
 
 	public function setMetaRule ($metaRule) {
 
@@ -59,7 +109,27 @@ Class Rule extends Action {
 		}
 
 		$this->fileRule = $rulesFile;
-
 	}
 
+	/**
+	 *
+	 * @param string $appId
+	 * @param mysqli $conn
+	 *
+	 * @return int $last_id
+	*/
+	public function insert ($appId, $conn) {
+		$restrc = $this->restricted;
+		$last_id = NULL;
+
+		$sql = "INSERT INTO rules (app_id, restricted) VALUES ('$appId','$restrc')";
+
+		if ($conn->query($sql) !== TRUE) {
+			echo "Erro @ ruleInsert " . $conn->error;
+		} else {
+			$last_id = $conn->insert_id;
+		}
+
+		return $last_id;
+	}
 }

@@ -1,7 +1,6 @@
 <?php
 
-
-Class Post {
+class Post {
 
 	public $post_id;
 	public $timestamp;
@@ -35,19 +34,7 @@ Class Post {
 		$sql = "INSERT INTO posts (_id, app_id, timestamp, ip, useragent) VALUES ('$post_id','$app_id','$timestamp','$ip','$useragent')";
 
 		if ($conn->query($sql) !== TRUE) {
-			echo "Erro: " . $conn->error;
+			echo "Erro @ postInsert: " . $conn->error;
 		}
-
-		/*
-		//override $sql because INSERT (command on $sql) was already executed
-		$sql = $this->prepareMeta($meta_info, $post_id);
-		$sql .= $this->prepareFile($files_info, $post_id);
-
-		if ($conn->multi_query($sql) !== TRUE) {
-			//git gud
-			echo "Erro: " . $conn->error;
-		}
-		*/
-
 	}
 }

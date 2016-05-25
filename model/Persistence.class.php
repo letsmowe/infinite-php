@@ -5,7 +5,7 @@ include 'Post.class.php';
 include 'Meta.class.php';
 include 'File.class.php';
 
-Class Persistence {
+class Persistence {
 	public $post;
 	public $app;
 
@@ -50,9 +50,8 @@ Class Persistence {
 			$appId = $this->generateSafeString(11);
 		}
 
-		$app = new App($appId, $dados["name"], $dados["rules"]);
+		$app = new App($appId, $dados["name"], $dados["rules"], $conn);
 		$this->app = $app;
-		$app->insert($conn);
 	}
 
 	/**
@@ -111,24 +110,19 @@ Class Persistence {
 			$post_id = $this->generateSafeString(11);
 		}
 
-		if(count($datameta)) {
-			$postMeta = $datameta;
-		} else {
-			$postMeta = NULL;
-		}
-
-		if(count($datafile)) {
-			$postFiles = $datafile;
-		} else {
-			$postFiles = NULL;
-		}
+		(count($datameta)) ? $postMeta = $datameta : $postMeta = NULL;
+		(count($datafile)) ? $postFiles = $datafile : $postFiles = NULL;
 
 		$post = new Post($post_id, $timestamp, $ip, $useragent, $postMeta, $postFiles);
 		$this->post = $post;
 
 		$post->insert($this->app->_id, $conn);
-		$meta->insert($postMeta, $this->app->_id, $this->post->post_id, $conn);
-		$file->insert($postFiles, $this->app->_id, $this->post->post_id, $conn);
+		
+		if ($postMeta != NULL)
+			$meta->insert($postMeta, $this->app->_id, $this->post->post_id, $conn);
+
+		if ($postFiles != NULL)
+			$file->insert($postFiles, $this->app->_id, $this->post->post_id, $conn);
 	}
 
 	/**

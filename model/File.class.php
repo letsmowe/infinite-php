@@ -123,7 +123,7 @@ Class File {
 		}
 
 		if ($conn->multi_query($sql) !== TRUE) {
-			echo "Erro: " . $conn->error;
+			echo "Erro @ fileInsert: " . $conn->error;
 		}
 	}
 

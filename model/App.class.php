@@ -2,11 +2,12 @@
 
 include 'Rule.class.php';
 
-Class App {
+class App {
 	
 	public $_id;
 	public $name;
 	public $rule;
+
 
 	/**
 	 * App constructor
@@ -15,13 +16,19 @@ Class App {
 	 *
 	 * @param string $id generated and verified unique string id
 	 * @param string $name app name
-	 * @param array $rules array with rules from both meta and files
+	 * @param array $rulesData rules
+	 * @param mysqli $conn database connection
 	 */
-	public function __construct($id, $name, $rules)
+	public function __construct($id, $name, $rulesData, $conn)
 	{
 		$this->_id = $id;
 		$this->name = $name;
-		$this->setRules($rules);
+		$rules = $this->setRules($rulesData);
+		$this->insert($conn);
+		
+		$ruleId = $rules->insert($this->_id, $conn);
+		$rules->insertMetaRules($ruleId, $conn);
+		$rules->insertFileRules($ruleId, $conn);
 	}
 
 	/**
@@ -29,17 +36,23 @@ Class App {
 	 *
 	 * Receive rules from parsed json and set rules for app
 	 *
-	 * @param array $rules
+	 * @param array $rulesData array with rules from both meta and files
+	 *
+	 * @return Rule $rules
 	*/
-	public function setRules ($rules) {
-		$rules = new Rule($rules["restricted"], $rules["meta"], $rules["files"]);
+	public function setRules ($rulesData) {
+		$rules = new Rule($rulesData["restricted"], $rulesData["meta"], $rulesData["files"]);
 		$this->rule = $rules;
+
+		return $rules;
 	}
 
 	/**
 	 *
 	 *
 	 * @param mysqli $conn database connection
+	 *
+	 * @return int $last_id
 	 */
 	public function insert ($conn) {
 		$id = $this->_id;
@@ -48,7 +61,7 @@ Class App {
 		$sql = "INSERT INTO app (_id, name) VALUES ('$id','$name')";
 
 		if ($conn->query($sql) !== TRUE) {
-			echo "Erro: " . $conn->error;
+			echo "Erro @ appInsert: " . $conn->error;
 		}
 	}
 }

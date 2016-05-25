@@ -1,12 +1,11 @@
 <?php
 
-include 'Action.php';
-
-class FileRule extends Action {
+class FileRule {
 
 	public $name;
 	public $contentType;
 	public $maxSize;
+	public $isRequired;
 
 	/**
 	 * @param array $rule single file rule from Rule.class
@@ -16,6 +15,6 @@ class FileRule extends Action {
 		$this->name = $rule['name'];
 		$this->contentType = $rule['contentType'];
 		$this->maxSize = $rule['maxSize'];
+		$this->isRequired = $rule['isRequired'];
 	}
-
 }

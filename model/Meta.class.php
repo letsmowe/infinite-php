@@ -1,6 +1,6 @@
 <?php
 
-Class Meta {
+class Meta {
 	
 	public $metaName;
 	public $metaValue;
@@ -48,7 +48,7 @@ Class Meta {
 		}
 
 		if ($conn->multi_query($sql) !== TRUE) {
-			echo "Erro: " . $conn->error;
+			echo "Erro @ metaInsert: " . $conn->error;
 		}
 
 	}
