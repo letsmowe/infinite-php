@@ -46,7 +46,7 @@ Class File {
 	public function handleFile ($reqs, $i)
 	{
 
-		/** tmp_name, size, name and type are parsed from $_FILE object */
+		// tmp_name, size, name and type are parsed from $_FILE object
 		$this->tempPath = $reqs['file']['tmp_name'][$i]; // temp filename on server
 		$this->size = $reqs['file']['size'][$i]; // file size in bytes
 		$this->origin = $reqs['file']['name'][$i]; // original name on client machine
@@ -54,9 +54,9 @@ Class File {
 
 		$updir = '/var/www/static/';
 		$info = pathinfo($this->origin);
-		$upext = $info['extension']; /** extension is get through the temp uploaded file */
+		$upext = $info['extension']; // extension is get through the temp uploaded file
 		$this->extension = $upext;
-		$upname = $this->generateSafeString(11); /** create a safe string to name file on static folder */
+		$upname = $this->generateSafeString(11); // create a safe string to name file on static folder
 
 		try {
 

@@ -7,6 +7,7 @@ class Meta {
 
 	/**
 	 * Receive fields name and value about post "metadata" (form fields)
+	 * 
 	 * @param string $name field name
 	 * @param string $value field value
 	 *

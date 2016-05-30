@@ -26,6 +26,52 @@ class Rule {
 	}
 
 	/**
+	 * manipulate data about meta rules for app
+	 *
+	 * @param array $metaRule
+	*/
+	public function setMetaRule ($metaRule) {
+
+		$rulesMeta = array();
+
+		if (!empty($metaRule['rules'])) {
+
+			foreach ($metaRule["rules"] as $ruleNum => $rule) {
+				$rulesMeta[$ruleNum] = new MetaRule($rule);
+			}
+
+		} else {
+			$rulesMeta = NULL;
+		}
+
+		$this->metaRule = $rulesMeta;
+	}
+
+	/**
+	 * manipulate data about file rules for app
+	 *
+	 * @param array $fileRule
+	 */
+	public function setFileRule ($fileRule) {
+
+		$rulesFile = array();
+
+		if (!empty($fileRule['rules'])) {
+
+			foreach ($fileRule['rules'] as $ruleNum => $rule) {
+				$rulesFile[$ruleNum] = new FileRule($rule);
+			}
+
+		} else {
+			$rulesFile = NULL;
+		}
+
+		$this->fileRule = $rulesFile;
+	}
+
+	/**
+	 * insert function for meta_rules on db
+	 *
 	 * @param int $lastRuleId rule from rule insert on db
 	 * @param mysqli $conn
 	*/
@@ -52,6 +98,8 @@ class Rule {
 	}
 
 	/**
+	 * insert function for files_rules on db
+	 *
 	 * @param int $lastRuleId
 	 * @param mysqli $conn
 	 */
@@ -77,41 +125,11 @@ class Rule {
 		}
 	}
 
-	public function setMetaRule ($metaRule) {
-
-		$rulesMeta = array();
-
-		if (!empty($metaRule['rules'])) {
-
-			foreach ($metaRule["rules"] as $ruleNum => $rule) {
-				$rulesMeta[$ruleNum] = new MetaRule($rule);
-			}
-
-		} else {
-			$rulesMeta = NULL;
-		}
-
-		$this->metaRule = $rulesMeta;
-	}
-
-	public function setFileRule ($fileRule) {
-
-		$rulesFile = array();
-
-		if (!empty($fileRule['rules'])) {
-
-			foreach ($fileRule['rules'] as $ruleNum => $rule) {
-				$rulesFile[$ruleNum] = new FileRule($rule);
-			}
-
-		} else {
-			$rulesFile = NULL;
-		}
-
-		$this->fileRule = $rulesFile;
-	}
-
 	/**
+	 * insert function for rules on db
+	 *
+	 * Returns the last_id (id of the inserted rule) to use on the relationship
+	 * with its child-like rules (1-n relationship between rule and metaRule/fileRule)
 	 *
 	 * @param string $appId
 	 * @param mysqli $conn

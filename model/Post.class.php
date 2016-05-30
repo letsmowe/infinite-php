@@ -20,6 +20,8 @@ class Post {
 	}
 
 	/**
+	 * insert function for posts on db
+	 *
 	 * @param string $appId generated id for app
 	 * @param mysqli $conn
 	 */

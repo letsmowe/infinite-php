@@ -12,7 +12,8 @@ class Persistence {
 	/**
 	 * Persistence constructor
 	 *
-	 * Called to manipulate and store apps definitions and rules
+	 * Called to manipulate and store apps definitions and rules,
+	 * and post info
 	 *
 	 * @param array $dados decoded json
 	 * @param mysqli $conn db connection already set, connection is set on Action
@@ -21,11 +22,12 @@ class Persistence {
 	{
 		if (!empty($dados)) {
 
+			// Delegate functions to execute each task
 			$this->handleApp($dados, $conn);
 			$this->handlePost($dados, $conn);
 
 		} else {
-			// function to return information
+			// Function to return information
 		}
 
 	}
@@ -33,16 +35,16 @@ class Persistence {
 	/**
 	 * define app and its rules for meta fields and files
 	 *
-	 * Handle json decoded array to get info
+	 * Handle json decoded array to get info about app and its rules
 	 *
 	 * @param array $dados json decoded array
 	 * @param mysqli $conn (already a connection, not the object reference)
 	 */
 	public function handleApp($dados, $conn) {
 
-		//create id for app
-		//check if id is already used
-		//if id not used, set the rules
+		// Create id for app
+		// Check if id is already used
+		// If id not used, set the rules
 
 		$appId = $this->generateSafeString(11);
 
@@ -60,16 +62,14 @@ class Persistence {
 	 * Handle $_POST info to get metadata (form fields values)
 	 *  and $_FILES info to get information about the file(s)
 	 *
-	 * @param array $reqs $_POST information (when not form, json parsed array
+	 * @param array $reqs $_POST information (when not form, json parsed array)
 	 * @param mysqli $conn
 	 */
 	public function handlePost($reqs, $conn)
 	{
 
-		/*
-		 * get info about request (if any);
-		 * timestamp, ip and useragent are parsed from header request
-		*/
+		// Get info about request (if any)
+		// timestamp, ip and useragent are parsed from header request
 
 		$timestamp = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);
 		$ip = $_SERVER['REMOTE_ADDR'];
@@ -79,9 +79,11 @@ class Persistence {
 		$datameta = array();
 		$datafile = array();
 
+		// Create meta and file objects, to be able to use their functions
 		$meta = new Meta();
 		$file = new File();
 
+		// Check if POST request came from one app-managed form
 		if ($reqs['appId']) {
 
 			// Populate metadados array with info about form fields (VERTICAL)
@@ -103,21 +105,24 @@ class Persistence {
 			}
 		}
 
-		//check if id is already used, if not, set generated id to post
+		// Check if id is already used, if not, set generated id to post
 		$post_id = $this->generateSafeString(11);
 
-		while($this->verifyId($post_id, "posts", $conn)) { //true = used, generate another
+		while($this->verifyId($post_id, "posts", $conn)) { //true == used, generate another
 			$post_id = $this->generateSafeString(11);
 		}
 
+		// Check if there is $datameta or $datafile, otherwise set it to NULL
 		(count($datameta)) ? $postMeta = $datameta : $postMeta = NULL;
 		(count($datafile)) ? $postFiles = $datafile : $postFiles = NULL;
 
 		$post = new Post($post_id, $timestamp, $ip, $useragent, $postMeta, $postFiles);
 		$this->post = $post;
 
+		// Need to have app inserted/set-ed on class, to be able to insert post
 		$post->insert($this->app->_id, $conn);
-		
+
+		// If $postMeta ($datameta) and $postFiles ($datafile) are not NULL, call their respective insert functions
 		if ($postMeta != NULL)
 			$meta->insert($postMeta, $this->app->_id, $this->post->post_id, $conn);
 

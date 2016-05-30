@@ -8,7 +8,6 @@ class App {
 	public $name;
 	public $rule;
 
-
 	/**
 	 * App constructor
 	 *
@@ -23,10 +22,15 @@ class App {
 	{
 		$this->_id = $id;
 		$this->name = $name;
-		$rules = $this->setRules($rulesData);
+		// App insert
 		$this->insert($conn);
 		
+		// Object that receive Rule object created (able to access its functions)
+		$rules = $this->setRules($rulesData);
+		
+		// $ruleId get the last insert id (or the inserted id for rules)
 		$ruleId = $rules->insert($this->_id, $conn);
+		// Use the last insert id to insert metaRules/fileRules
 		$rules->insertMetaRules($ruleId, $conn);
 		$rules->insertFileRules($ruleId, $conn);
 	}
@@ -34,7 +38,8 @@ class App {
 	/**
 	 * set rules for app
 	 *
-	 * Receive rules from parsed json and set rules for app
+	 * Receive rules from parsed json and set rules for app,
+	 * returns the created Rule object
 	 *
 	 * @param array $rulesData array with rules from both meta and files
 	 *
@@ -48,11 +53,9 @@ class App {
 	}
 
 	/**
-	 *
+	 * insert function for app on db
 	 *
 	 * @param mysqli $conn database connection
-	 *
-	 * @return int $last_id
 	 */
 	public function insert ($conn) {
 		$id = $this->_id;
